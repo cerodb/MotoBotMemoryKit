@@ -9,6 +9,7 @@ The intended outcome is:
 - use the kit as a starting point
 - create your own private repo
 - run your first smoke test there
+- run a second smoke test on another machine if the system is meant to be multi-node
 - then treat that new repo as your live shared-memory system
 
 ## Goal
@@ -115,3 +116,17 @@ Read:
 3. `machines/registry.md`
 
 Then decide whether the node should keep using a temporary slug or adopt a permanent one.
+
+## Multi-node go-live rule
+
+If the goal is a shared-memory system across more than one machine, do not declare the new repo "live" after only one smoke test.
+
+Recommended sequence:
+
+1. run the first smoke test on machine A
+2. fix any onboarding/script/documentation issues
+3. run the same smoke test on machine B
+4. only after both smoke tests pass, create or bless the derived repo as the live shared-memory repo
+5. then assign permanent `machine_slug` values and update `machines/registry.md`
+
+This avoids turning a one-machine success into a premature multi-node commitment.

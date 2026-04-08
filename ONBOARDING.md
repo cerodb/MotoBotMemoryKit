@@ -52,6 +52,18 @@ Only after that should the node adopt a permanent slug and update `machines/regi
 
 For a first repository bootstrap, read `INSTALL.md`.
 
+## Go-live rule for multi-machine use
+
+If the intended system will span multiple machines, one successful smoke test is not enough to treat the repo as operational.
+
+Use this order:
+
+1. pass a smoke test on machine A
+2. fix any kit gaps discovered there
+3. pass a smoke test on machine B
+4. only then treat the derived repo as the live shared-memory repo
+5. only then assign permanent slugs and finalize `machines/registry.md`
+
 ## Multiple agents on the same machine
 
 If Claude, Codex, and/or another agent all operate on the same machine, they still count as one node.

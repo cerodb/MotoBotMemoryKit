@@ -8,7 +8,8 @@ The normal path is:
 
 - read this kit
 - create your own private repo from it
-- run a smoke test there
+- run a smoke test there on the first machine
+- if the system will span multiple machines, run a second smoke test on another machine
 - then operate from that new repo
 
 It is:
