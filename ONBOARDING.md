@@ -17,6 +17,14 @@ Do not use zip exchange except for bootstrap, recovery, or manual fallback.
 
 If a machine already has its own memory layer, do not register it immediately.
 
+Before the smoke test, determine what "local memory" means for that tool on that machine. Examples:
+
+- Claude may keep project memory under a product-specific folder
+- Codex may have a local memory root such as `~/.codex/memories/`
+- another agent may not have a populated durable memory folder yet
+
+If the tool-local memory root exists but is empty, that is still a valid first smoke-test input. The first test is allowed to prove that the export path works even before there is real content.
+
 Run a local smoke test first:
 
 ```bash
@@ -37,6 +45,8 @@ Verify locally:
 - `imports/temp-node-smoke/lessons/`
 - `imports/temp-node-smoke/daily/`
 - `imports/temp-node-smoke/projects/`
+
+An empty result is acceptable on the first run if the bridge had no exportable content yet. In that case, add one minimal sample artifact and rerun.
 
 Only after that should the node adopt a permanent slug and update `machines/registry.md`.
 

@@ -91,9 +91,20 @@ git status --short
 
 Expected result:
 
-- one or more staged lesson files
-- one or more staged daily files
-- one staged `active-db-snapshot.md`
+- the command should complete without crashing
+- `imports/temp-node-smoke/` should exist
+- if the bridge is empty, staged folders may remain empty and that is acceptable for a first smoke test
+- if the bridge already has exportable content, staged lessons/dailies/projects should appear there
+
+If the bridge is empty, add a minimal sample and rerun, for example:
+
+```bash
+cat > /path/to/.motobot-memory/lessons/first-lesson.md <<'EOF'
+# First lesson
+
+This is a smoke-test lesson.
+EOF
+```
 
 ## Before treating the repo as operational
 

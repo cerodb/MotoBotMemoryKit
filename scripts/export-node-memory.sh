@@ -402,10 +402,12 @@ for staged_daily in "$STAGE_DIR"/daily/*.md; do
   fi
 done
 
-for name in "${recent_dailies[@]}"; do
-  prepare_bridge_daily "$BRIDGE_ROOT/memories/daily/$name"
-  sync_copy "$BRIDGE_ROOT/memories/daily/$name" "$STAGE_DIR/daily/$name"
-done
+if [[ "${#recent_dailies[@]}" -gt 0 ]]; then
+  for name in "${recent_dailies[@]}"; do
+    prepare_bridge_daily "$BRIDGE_ROOT/memories/daily/$name"
+    sync_copy "$BRIDGE_ROOT/memories/daily/$name" "$STAGE_DIR/daily/$name"
+  done
+fi
 
 bridge_projects=()
 while IFS= read -r line; do
@@ -429,10 +431,12 @@ for staged_project in "$STAGE_DIR"/projects/*.md; do
   fi
 done
 
-for name in "${bridge_projects[@]}"; do
-  prepare_bridge_project "$BRIDGE_ROOT/projects/$name"
-  sync_copy "$BRIDGE_ROOT/projects/$name" "$STAGE_DIR/projects/$name"
-done
+if [[ "${#bridge_projects[@]}" -gt 0 ]]; then
+  for name in "${bridge_projects[@]}"; do
+    prepare_bridge_project "$BRIDGE_ROOT/projects/$name"
+    sync_copy "$BRIDGE_ROOT/projects/$name" "$STAGE_DIR/projects/$name"
+  done
+fi
 
 echo "Exported node memory for $MACHINE_SLUG into $STAGE_DIR"
 echo "Changed files: $changed"
