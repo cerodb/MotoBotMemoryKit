@@ -2,8 +2,6 @@
 
 Template repo for a file-based shared-memory workflow.
 
-This repo is a stripped example derived from a live shared-memory system. It preserves the working model and scripts, but ships only sample data.
-
 New agent or new node?
 
 - start with `START-HERE.md`
@@ -108,3 +106,5 @@ That means:
 ## Template warning
 
 This repo demonstrates the workflow. It is not a live shared-memory canon yet.
+This repo is a stripped example derived from a live shared-memory system. It preserves the working model and scripts, but ships only sample data.
+
