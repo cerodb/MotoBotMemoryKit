@@ -5,7 +5,6 @@ This repo is a template for a MotoBot-style shared-memory system.
 ## Sample nodes
 
 - `sample-node-a` — primary example node
-- `sample-node-b` — second example node
 
 ## Normal transport
 

@@ -18,6 +18,7 @@ It gives you:
 - the export/promote scripts
 - onboarding and smoke-test docs
 - a small fake dataset so the workflow is understandable from day one
+- a linked sample cluster in canon plus a staged sample import payload
 
 ## What This Is Not
 
@@ -107,4 +108,3 @@ That means:
 
 This repo demonstrates the workflow. It is not a live shared-memory canon yet.
 This repo is a stripped example derived from a live shared-memory system. It preserves the working model and scripts, but ships only sample data.
-

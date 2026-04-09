@@ -23,7 +23,8 @@ End with:
 
 ## Option A — Start from a new private remote
 
-1. Create an empty private Git repo named `MotoBotMemoryKit`
+1. Create an empty private Git repo of your own.
+   It may be named `MotoBotMemoryKit`, but it does not have to be.
 2. Clone it locally:
 
 ```bash
@@ -130,3 +131,13 @@ Recommended sequence:
 5. then assign permanent `machine_slug` values and update `machines/registry.md`
 
 This avoids turning a one-machine success into a premature multi-node commitment.
+
+## Sample data included in the kit
+
+The kit already ships with:
+
+- a tiny linked canonical sample cluster in `lessons/`, `projects/`, and `daily/`
+- a matching staged sample payload in `imports/sample-node-a/`
+
+Those samples are for understanding the structure only.
+Your first smoke test should still use your own fake or real bridge root.
