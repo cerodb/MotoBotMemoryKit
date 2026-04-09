@@ -104,6 +104,9 @@ That means:
 - `scripts/audit-wiki-metadata.sh`
 - `scripts/bootstrap-from-bridge.sh`
 
+`scripts/bootstrap-from-bridge.sh` is disabled by default.
+Use it only with explicit opt-in in a private derived repo, because it can copy raw local bridge content into the Git tree.
+
 ## Template warning
 
 This repo demonstrates the workflow. It is not a live shared-memory canon yet.
