@@ -5,6 +5,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+declare -A LESSON_PATHS=()
+declare -A PROJECT_PATHS=()
+declare -A DAILY_PATHS=()
+
 frontmatter_field() {
   local file_path="$1"
   local field_name="$2"
@@ -20,6 +24,105 @@ frontmatter_field() {
   ' "$file_path"
 }
 
+frontmatter_list_field() {
+  local file_path="$1"
+  local field_name="$2"
+
+  awk -v field_name="$field_name" '
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && $0 == "---" { exit }
+    in_frontmatter && $0 == field_name ":" { capture = 1; next }
+    capture && $0 ~ /^  - / {
+      sub(/^  - /, "", $0)
+      print
+      next
+    }
+    capture { exit }
+  ' "$file_path"
+}
+
+relative_link() {
+  local from_section="$1"
+  local to_section="$2"
+  local basename="$3"
+
+  if [ "$from_section" = "$to_section" ]; then
+    printf './%s' "$basename"
+  else
+    printf '../%s/%s' "$to_section" "$basename"
+  fi
+}
+
+render_related_links() {
+  local from_section="$1"
+  local file_path="$2"
+  local relations=()
+  local token
+  local target
+  local basename
+  local lesson_id
+  local line=""
+
+  while IFS= read -r token; do
+    [ -n "$token" ] || continue
+    target="${PROJECT_PATHS[$token]:-}"
+    if [ -n "$target" ]; then
+      basename="$(basename "$target")"
+      relations+=("[${token}]($(relative_link "$from_section" "projects" "$basename"))")
+    fi
+  done < <(frontmatter_list_field "$file_path" "related_projects")
+
+  while IFS= read -r lesson_id; do
+    [ -n "$lesson_id" ] || continue
+    target="${LESSON_PATHS[$lesson_id]:-}"
+    if [ -n "$target" ]; then
+      basename="$(basename "$target")"
+      relations+=("[${lesson_id}]($(relative_link "$from_section" "lessons" "$basename"))")
+    fi
+  done < <(frontmatter_list_field "$file_path" "related_lessons")
+
+  while IFS= read -r token; do
+    [ -n "$token" ] || continue
+    target="${DAILY_PATHS[$token]:-}"
+    if [ -n "$target" ]; then
+      basename="$(basename "$target")"
+      relations+=("[${token}]($(relative_link "$from_section" "daily" "$basename"))")
+    fi
+  done < <(frontmatter_list_field "$file_path" "related_daily")
+
+  if [ "${#relations[@]}" -gt 0 ]; then
+    line="Related: "
+    line+=$(printf '%s, ' "${relations[@]}")
+    line="${line%, }"
+    printf '%s' "$line"
+  fi
+}
+
+build_lookup_maps() {
+  local file_path
+  local lesson_id
+  local project_id
+  local daily_key
+
+  while IFS= read -r file_path; do
+    lesson_id="$(frontmatter_field "$file_path" "lesson_id")"
+    if [ -n "$lesson_id" ]; then
+      LESSON_PATHS["$lesson_id"]="$file_path"
+    fi
+  done < <(find "${REPO_ROOT}/lessons" -maxdepth 1 -type f -name '*.md' ! -name 'index.md' | sort)
+
+  while IFS= read -r file_path; do
+    project_id="$(basename "$file_path" .md)"
+    project_id="${project_id%-summary}"
+    PROJECT_PATHS["$project_id"]="$file_path"
+  done < <(find "${REPO_ROOT}/projects" -maxdepth 1 -type f -name '*.md' ! -name 'index.md' | sort)
+
+  while IFS= read -r file_path; do
+    daily_key="$(basename "$file_path" .md)"
+    DAILY_PATHS["$daily_key"]="$file_path"
+  done < <(find "${REPO_ROOT}/daily" -maxdepth 1 -type f -name '*.md' ! -name 'index.md' | sort)
+}
+
 build_index() {
   local section_dir="$1"
   local section_title="$2"
@@ -32,6 +135,8 @@ build_index() {
   local lesson_id
   local sort_key
   local line
+  local relations_line
+  local relation_suffix
 
   tmp_file="$(mktemp)"
   entries_file="$(mktemp)"
@@ -57,6 +162,13 @@ build_index() {
       line="- [${label}](${rel_path})"
     fi
 
+    relations_line="$(render_related_links "$section_dir" "$file_path" || true)"
+    if [ -n "$relations_line" ]; then
+      relation_suffix=" — ${relations_line}"
+    else
+      relation_suffix=""
+    fi
+
     if [ "$section_dir" = "lessons" ] && [ -n "$lesson_id" ]; then
       lesson_num=$((10#${lesson_id#L}))
       sort_key="0-$(printf '%04d' "$lesson_num")"
@@ -64,7 +176,7 @@ build_index() {
       sort_key="1-$(basename "$file_path" .md)"
     fi
 
-    printf '%s\t%s\n' "$sort_key" "$line" >> "$entries_file"
+    printf '%s\t%s%s\n' "$sort_key" "$line" "$relation_suffix" >> "$entries_file"
   done
 
   sort "$entries_file" | cut -f2- >> "$tmp_file"
@@ -72,6 +184,7 @@ build_index() {
   mv "$tmp_file" "$index_path"
 }
 
+build_lookup_maps
 build_index "lessons" "Lessons"
 build_index "projects" "Projects"
 build_index "daily" "Daily"

@@ -8,6 +8,10 @@ date: 2026-01-15
 origin_node: sample-node-a
 applies_to:
   - all-nodes
+related_projects:
+  - P100
+related_lessons:
+  - L002
 tags:
   - lesson
   - memory

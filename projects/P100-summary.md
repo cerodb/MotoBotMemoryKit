@@ -4,6 +4,9 @@ description: Sample portable summary for a shared-memory bootstrap project.
 type: project
 date: 2026-01-15
 origin_node: sample-node-a
+related_lessons:
+  - L001
+  - L002
 ---
 
 # P100 Summary
@@ -19,3 +22,8 @@ Demonstrate how a node adopts the bridge-first shared-memory workflow.
 ## Outcome
 
 Smoke export succeeded with one lesson, one daily, and one project snapshot.
+
+## Related lessons
+
+- shared bridge rule
+- pull before promotion

@@ -6,6 +6,9 @@ date: 2026-01-15
 origin_node: sample-node-a
 related_projects:
   - P100
+related_lessons:
+  - L001
+  - L002
 tags:
   - daily
 ---
