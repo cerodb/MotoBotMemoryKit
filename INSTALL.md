@@ -141,3 +141,24 @@ The kit already ships with:
 
 Those samples are for understanding the structure only.
 Your first smoke test should still use your own fake or real bridge root.
+
+## Recommended production safety-net
+
+Once a derived repo is live on a real node, add a node-local wrapper script plus cron so export/pull/promote also happens as a safety net.
+
+Suggested cadence for active nodes:
+
+- `30 1,13 * * * <path-to-node-wrapper>`
+
+Suggested wrapper shape:
+
+1. fail if repo is dirty
+2. `git pull --ff-only`
+3. run `scripts/export-node-memory.sh <machine-slug>`
+4. commit + push node export changes
+5. run `scripts/pull-and-promote.sh <machine-slug>`
+6. rebuild indexes if canonical dirs changed
+7. commit + push promotions
+8. guard with a lock file
+
+This should be shipped as template guidance or helper script in a later refinement pass.
