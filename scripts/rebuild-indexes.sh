@@ -169,8 +169,8 @@ build_index() {
       relation_suffix=""
     fi
 
-    if [ "$section_dir" = "lessons" ] && [ -n "$lesson_id" ]; then
-      lesson_num=$((10#${lesson_id#L}))
+    if [ "$section_dir" = "lessons" ] && [[ "$lesson_id" =~ ^L([0-9]+)$ ]]; then
+      lesson_num=$((10#${BASH_REMATCH[1]}))
       sort_key="0-$(printf '%04d' "$lesson_num")"
     else
       sort_key="1-$(basename "$file_path" .md)"
