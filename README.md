@@ -91,11 +91,12 @@ That means:
 
 - they may all write into the same local bridge
 - they export into the same `imports/<machine-slug>/`
-- but `pull -> export -> commit -> push` must be serialized per machine
+- bridge-only memory is not visible to other nodes yet
+- `pull -> export -> commit -> push` must be serialized per machine
 
 ## Scripts
 
-- `scripts/export-node-memory.sh <machine-slug>`
+- `scripts/export-node-memory.sh <machine-slug>` — stages bridge memory into `imports/<machine-slug>/`; exports all daily files by default (`DAILY_LIMIT=all`), use `DAILY_LIMIT=N` only for smoke tests/diagnostics
 - `scripts/promote-import.sh <machine-slug>`
 - `scripts/pull-and-promote.sh <local-machine-slug>`
 - `scripts/rebuild-indexes.sh`
@@ -125,10 +126,11 @@ Suggested wrapper shape:
 1. fail if repo is dirty
 2. `git pull --ff-only`
 3. run `scripts/export-node-memory.sh <machine-slug>`
-4. commit + push node export changes
-5. run `scripts/pull-and-promote.sh <machine-slug>`
+4. commit + push node export changes if `imports/<machine-slug>/` changed
+5. run `scripts/pull-and-promote.sh <machine-slug>` or `scripts/promote-import.sh <machine-slug>` as appropriate
 6. rebuild indexes if canonical dirs changed
 7. commit + push promotions
-8. guard with a lock file
+8. verify `HEAD` matches `origin/main`
+9. guard with a lock file
 
 This should be shipped as template guidance or helper script in a later refinement pass.

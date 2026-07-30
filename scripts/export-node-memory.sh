@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BRIDGE_ROOT="${MOTOBOT_MEMORY_ROOT:-$HOME/.motobot-memory}"
 MACHINE_SLUG="${1:-sample-node-a}"
-DAILY_LIMIT="${DAILY_LIMIT:-3}"
+DAILY_LIMIT="${DAILY_LIMIT:-all}"
 STAGE_DIR="$ROOT/imports/$MACHINE_SLUG"
 
 if [[ ! -d "$ROOT/.git" ]]; then
@@ -387,13 +387,22 @@ for file in "$BRIDGE_ROOT"/lessons/*.md; do
 done
 
 recent_dailies=()
-while IFS= read -r line; do
-  recent_dailies+=("$line")
-done < <(
-  find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '2026-*.md' -exec basename {} \; \
-    | sort \
-    | tail -n "$DAILY_LIMIT"
-)
+if [[ "$DAILY_LIMIT" == "all" || "$DAILY_LIMIT" == "0" ]]; then
+  while IFS= read -r line; do
+    recent_dailies+=("$line")
+  done < <(
+    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '2026-*.md' -exec basename {} \; \
+      | sort
+  )
+else
+  while IFS= read -r line; do
+    recent_dailies+=("$line")
+  done < <(
+    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '2026-*.md' -exec basename {} \; \
+      | sort \
+      | tail -n "$DAILY_LIMIT"
+  )
+fi
 
 for staged_daily in "$STAGE_DIR"/daily/*.md; do
   [ -e "$staged_daily" ] || continue
@@ -448,4 +457,8 @@ fi
 
 echo "Exported node memory for $MACHINE_SLUG into $STAGE_DIR"
 echo "Changed files: $changed"
-echo "Daily window: last $DAILY_LIMIT files"
+if [[ "$DAILY_LIMIT" == "all" || "$DAILY_LIMIT" == "0" ]]; then
+  echo "Daily window: all files"
+else
+  echo "Daily window: last $DAILY_LIMIT files"
+fi

@@ -65,7 +65,7 @@ If you already have your own memory:
 
 ## Working Rule
 
-The source of truth for shared memory is the local bridge on each machine.
+Use the local bridge as the **machine-local staging/source input**, not as the final shared truth.
 
 Typical bridge shape:
 
@@ -73,7 +73,9 @@ Typical bridge shape:
 - `memories/daily/`
 - `projects/`
 
-Write durable memory there first, then export it to Git.
+Write durable memory there first, then export it into this Git repo under `imports/<machine-slug>/`, promote it into canonical directories, commit, and push.
+
+Memory is shared with other nodes only after it exists in the repo's canonical directories (`lessons/`, `daily/`, `projects/`) and has been pushed to `origin/main`.
 
 ## Recommended production safety-net
 
@@ -88,10 +90,11 @@ Suggested wrapper shape:
 1. fail if repo is dirty
 2. `git pull --ff-only`
 3. run `scripts/export-node-memory.sh <machine-slug>`
-4. commit + push node export changes
-5. run `scripts/pull-and-promote.sh <machine-slug>`
+4. commit + push node export changes if `imports/<machine-slug>/` changed
+5. run `scripts/pull-and-promote.sh <machine-slug>` or `scripts/promote-import.sh <machine-slug>` as appropriate
 6. rebuild indexes if canonical dirs changed
 7. commit + push promotions
-8. guard with a lock file
+8. verify `HEAD` matches `origin/main`
+9. guard with a lock file
 
 This should be shipped as template guidance or helper script in a later refinement pass.
