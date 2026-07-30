@@ -100,12 +100,15 @@ Suggested wrapper shape:
 
 1. fail if repo is dirty
 2. `git pull --ff-only`
-3. run `scripts/export-node-memory.sh <machine-slug>`
-4. commit + push node export changes if `imports/<machine-slug>/` changed
-5. run `scripts/pull-and-promote.sh <machine-slug>` or `scripts/promote-import.sh <machine-slug>` as appropriate
-6. rebuild indexes if canonical dirs changed
-7. commit + push promotions
-8. verify `HEAD` matches `origin/main`
-9. guard with a lock file
+3. run `scripts/audit-case-collisions.sh`
+4. run `scripts/export-node-memory.sh <machine-slug>`
+5. after any `git add`, run `scripts/audit-case-collisions.sh` again before commit
+6. commit + push node export changes if `imports/<machine-slug>/` changed
+7. run `scripts/pull-and-promote.sh <machine-slug>` or `scripts/promote-import.sh <machine-slug>` as appropriate
+8. rebuild indexes if canonical dirs changed
+9. after any broad staging of canonical dirs, run `scripts/audit-case-collisions.sh` again before commit
+10. commit + push promotions
+11. verify `HEAD` matches `origin/main`
+12. guard with a lock file
 
 This should be shipped as template guidance or helper script in a later refinement pass.
