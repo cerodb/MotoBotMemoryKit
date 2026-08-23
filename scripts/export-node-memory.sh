@@ -8,7 +8,7 @@ MACHINE_SLUG="${1:-sample-node-a}"
 DAILY_LIMIT="${DAILY_LIMIT:-all}"
 STAGE_DIR="$ROOT/imports/$MACHINE_SLUG"
 
-if [[ ! -d "$ROOT/.git" ]]; then
+if [[ ! -e "$ROOT/.git" ]]; then
   echo "missing git repo at $ROOT" >&2
   exit 1
 fi

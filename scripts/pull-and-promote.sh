@@ -13,7 +13,7 @@ if [[ -z "$LOCAL_MACHINE_SLUG" ]]; then
   exit 2
 fi
 
-if [[ ! -d "$ROOT/.git" ]]; then
+if [[ ! -e "$ROOT/.git" ]]; then
   echo "missing repo root at $ROOT" >&2
   exit 1
 fi
@@ -33,7 +33,7 @@ machine_slugs=()
 while IFS= read -r line; do
   machine_slugs+=("$line")
 done < <(
-  rg '^### ' "$REGISTRY_FILE" \
+  grep -E '^### ' "$REGISTRY_FILE" \
     | sed 's/^### //' \
     | sed '/^'"$LOCAL_MACHINE_SLUG"'$/d'
 )

@@ -7,7 +7,7 @@ SRC="${MOTOBOT_MEMORY_ROOT:-$HOME/.motobot-memory}"
 BOOTSTRAP_MACHINE_SLUG="${BOOTSTRAP_MACHINE_SLUG:-sample-node-a}"
 ALLOW_UNSANITIZED_BOOTSTRAP="${ALLOW_UNSANITIZED_BOOTSTRAP:-0}"
 
-if [[ ! -d "$ROOT/.git" ]]; then
+if [[ ! -e "$ROOT/.git" ]]; then
   echo "missing repo root at $ROOT" >&2
   exit 1
 fi
