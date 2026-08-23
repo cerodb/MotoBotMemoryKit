@@ -109,6 +109,10 @@ That means:
 `scripts/bootstrap-from-bridge.sh` is disabled by default.
 Use it only with explicit opt-in in a private derived repo, because it can copy raw local bridge content into the Git tree.
 
+## Tests
+
+- `tests/promote-import.test.sh` — run it from the repo root (`bash tests/promote-import.test.sh`) to check the promotion rules before you trust a change to `scripts/promote-import.sh`.
+
 ## Template warning
 
 This repo demonstrates the workflow. It is not a live shared-memory canon yet.
