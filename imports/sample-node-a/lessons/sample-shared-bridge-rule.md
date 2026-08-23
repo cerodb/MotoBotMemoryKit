@@ -1,7 +1,7 @@
 ---
 lesson_id: L001
 name: sample-shared-bridge-rule
-description: All agents on one machine share one bridge and one node namespace.
+description: Agents on one machine share a local staging bridge and one node namespace.
 type: lesson
 scope: shared
 date: 2026-01-15
@@ -19,6 +19,8 @@ tags:
 
 # Shared bridge rule
 
-If multiple agents work on the same machine, they should all write durable memory to the same local bridge.
+If multiple agents work on the same machine, they may all write durable memory to the same local bridge/staging root.
+
+That bridge is not the final shared truth. Other nodes can consume the memory only after it has been exported, promoted into the repo's canonical directories, committed, and pushed.
 
 The Git sync cycle must still be serialized per machine.

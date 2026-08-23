@@ -16,5 +16,5 @@ tags:
 # Sample daily
 
 - Ran the first smoke export from `sample-node-a`
-- Confirmed one lesson, one daily, and one project snapshot staged correctly
+- Confirmed two lessons, one daily, and one project snapshot staged correctly
 - No collisions appeared during promotion

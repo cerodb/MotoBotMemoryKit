@@ -20,4 +20,6 @@ tags:
 
 # Promote after pull
 
-This staged sample shows the same durable lesson before it is promoted into canonical `lessons/`.
+Before promoting imported files into canonical directories, a node should pull the latest shared repo state.
+
+This reduces avoidable collisions and makes the promotion step easier to reason about.
