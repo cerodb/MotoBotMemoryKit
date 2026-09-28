@@ -39,6 +39,7 @@ done < <(
 )
 
 promoted=0
+failed=0
 
 has_md_files() {
   local dir="$1"
@@ -61,7 +62,13 @@ for slug in "${machine_slugs[@]}"; do
   fi
 
   before="$(git status --porcelain)"
-  bash "$SCRIPT_DIR/promote-import.sh" "$slug"
+  if bash "$SCRIPT_DIR/promote-import.sh" "$slug"; then
+    :
+  else
+    rc=$?
+    failed=$((failed + 1))
+    echo "Promotion failed for $slug (exit $rc); continuing with remaining nodes" >&2
+  fi
   after="$(git status --porcelain)"
 
   if [[ "$before" != "$after" ]]; then
@@ -72,6 +79,14 @@ for slug in "${machine_slugs[@]}"; do
   fi
 done
 
+echo "Promotion passes with canonical changes: $promoted"
+echo "Failed promotion passes: $failed"
+
+if [[ "$failed" -gt 0 ]]; then
+  echo "Partial promotion: changes remain local; automatic commit/push skipped" >&2
+  exit 1
+fi
+
 if [[ "$COMMIT_PROMOTIONS" == "1" ]] && ! git diff --quiet -- lessons daily projects; then
   git add lessons daily projects
   git commit -m "feat: promote shared-memory imports for $LOCAL_MACHINE_SLUG"
@@ -80,5 +95,3 @@ if [[ "$COMMIT_PROMOTIONS" == "1" ]] && ! git diff --quiet -- lessons daily proj
     git push origin main
   fi
 fi
-
-echo "Promotion passes with canonical changes: $promoted"

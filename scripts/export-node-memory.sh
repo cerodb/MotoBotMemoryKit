@@ -391,14 +391,14 @@ if [[ "$DAILY_LIMIT" == "all" || "$DAILY_LIMIT" == "0" ]]; then
   while IFS= read -r line; do
     recent_dailies+=("$line")
   done < <(
-    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '2026-*.md' -exec basename {} \; \
+    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].md' -exec basename {} \; \
       | sort
   )
 else
   while IFS= read -r line; do
     recent_dailies+=("$line")
   done < <(
-    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '2026-*.md' -exec basename {} \; \
+    find "$BRIDGE_ROOT/memories/daily" -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].md' -exec basename {} \; \
       | sort \
       | tail -n "$DAILY_LIMIT"
   )

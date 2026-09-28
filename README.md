@@ -96,9 +96,9 @@ That means:
 
 ## Scripts
 
-- `scripts/export-node-memory.sh <machine-slug>` — stages bridge memory into `imports/<machine-slug>/`; exports all daily files by default (`DAILY_LIMIT=all`), use `DAILY_LIMIT=N` only for smoke tests/diagnostics
+- `scripts/export-node-memory.sh <machine-slug>` — stages bridge memory into `imports/<machine-slug>/`; exports date-named daily files (`YYYY-MM-DD.md`) across all years by default (`DAILY_LIMIT=all`), use `DAILY_LIMIT=N` only for smoke tests/diagnostics
 - `scripts/promote-import.sh <machine-slug>`
-- `scripts/pull-and-promote.sh <local-machine-slug>`
+- `scripts/pull-and-promote.sh <local-machine-slug>` — processes remaining nodes after a promotion failure, then exits non-zero; partial results stay local and automatic commit/push is skipped.
 - `scripts/rebuild-indexes.sh`
 - `scripts/normalize-lessons.sh`
 - `scripts/normalize-recent-dailies.sh`
@@ -112,6 +112,8 @@ Use it only with explicit opt-in in a private derived repo, because it can copy 
 ## Tests
 
 - `tests/promote-import.test.sh` — run it from the repo root (`bash tests/promote-import.test.sh`) to check the promotion rules before you trust a change to `scripts/promote-import.sh`.
+
+- `tests/export-and-pull.test.sh` — run with Bash to check year-independent export and cross-node promotion using temporary bridges and local Git remotes only.
 
 ## Template warning
 
