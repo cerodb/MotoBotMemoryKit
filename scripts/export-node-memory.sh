@@ -404,11 +404,12 @@ else
   )
 fi
 
+# Alternate array expansions in pruning loops tolerate empty bridges on Bash 3.2.
 for staged_daily in "$STAGE_DIR"/daily/*.md; do
   [ -e "$staged_daily" ] || continue
   keep_file=0
   staged_name="$(basename "$staged_daily")"
-  for recent_name in "${recent_dailies[@]}"; do
+  for recent_name in ${recent_dailies[@]+"${recent_dailies[@]}"}; do
     if [[ "$staged_name" == "$recent_name" ]]; then
       keep_file=1
       break
@@ -437,7 +438,7 @@ for staged_project in "$STAGE_DIR"/projects/*.md; do
   [ -e "$staged_project" ] || continue
   keep_file=0
   staged_name="$(basename "$staged_project")"
-  for project_name in "${bridge_projects[@]}"; do
+  for project_name in ${bridge_projects[@]+"${bridge_projects[@]}"}; do
     if [[ "$staged_name" == "$project_name" ]]; then
       keep_file=1
       break

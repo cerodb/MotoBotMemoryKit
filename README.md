@@ -98,12 +98,13 @@ That means:
 
 - `scripts/export-node-memory.sh <machine-slug>` — stages bridge memory into `imports/<machine-slug>/`; exports date-named daily files (`YYYY-MM-DD.md`) across all years by default (`DAILY_LIMIT=all`), use `DAILY_LIMIT=N` only for smoke tests/diagnostics
 - `scripts/promote-import.sh <machine-slug>`
-- `scripts/pull-and-promote.sh <local-machine-slug>` — processes remaining nodes after a promotion failure, then exits non-zero; partial results stay local and automatic commit/push is skipped.
+- `scripts/pull-and-promote.sh <local-machine-slug>` — processes remaining nodes after a promotion failure, then exits non-zero; partial results stay local and automatic commit/push is skipped. On success, `COMMIT_PROMOTIONS=1` includes newly added canonical files as well as tracked changes.
 - `scripts/rebuild-indexes.sh`
 - `scripts/normalize-lessons.sh`
 - `scripts/normalize-recent-dailies.sh`
 - `scripts/audit-wiki-metadata.sh`
 - `scripts/audit-case-collisions.sh` — fails before commit/push if tracked or staged paths would collide on default macOS/case-insensitive filesystems
+- `scripts/motobotsharedmemory-stop-sync.sh` — optional close-time hook; see [setup and dependencies](scripts/STOP-SYNC.md). It does not replace scheduled synchronization.
 - `scripts/bootstrap-from-bridge.sh`
 
 `scripts/bootstrap-from-bridge.sh` is disabled by default.
@@ -113,7 +114,9 @@ Use it only with explicit opt-in in a private derived repo, because it can copy 
 
 - `tests/promote-import.test.sh` — run it from the repo root (`bash tests/promote-import.test.sh`) to check the promotion rules before you trust a change to `scripts/promote-import.sh`.
 
-- `tests/export-and-pull.test.sh` — run with Bash to check year-independent export and cross-node promotion using temporary bridges and local Git remotes only.
+- `tests/export-and-pull.test.sh` — run with Bash to check year-independent export and cross-node promotion using temporary bridges and local Git remotes only. Includes additions-only commits, repeat runs, empty-bridge pruning and a single-node registry.
+
+To exercise an alternate Bash, put it first on `PATH` before running the suites so child scripts use the same interpreter. Testing Bash 3.2 on Linux does not verify macOS utilities or the optional sync hook.
 
 ## Template warning
 
@@ -143,4 +146,4 @@ Suggested wrapper shape:
 11. verify `HEAD` matches `origin/main`
 12. guard with a lock file
 
-This should be shipped as template guidance or helper script in a later refinement pass.
+The close-time hook already ships in `scripts/`, but a complete scheduled wrapper and its installation remain node-local. The hook skips networking when there is no local export change, so it cannot be the only mechanism for receiving other nodes' updates.

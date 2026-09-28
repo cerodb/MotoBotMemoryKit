@@ -36,20 +36,28 @@ run_export 1
 [[ ! -e "$repo/imports/testnode/daily/2025-12-31.md" ]] || fail 'old daily not pruned'
 run_export 0
 [[ -f "$repo/imports/testnode/daily/2026-12-31.md" ]] || fail 'zero did not restore full window'
+# An empty bridge must prune previously staged files without nounset failures.
+rm "$bridge/memories/daily/"*.md
+printf 'Old project\n' > "$repo/imports/testnode/projects/old.md"
+run_export all
+[[ -z "$(find "$repo/imports/testnode/daily" "$repo/imports/testnode/projects" -type f)" ]] || fail 'empty bridge failed to prune stale files'
 echo 'PASS: export across years, full/limited/zero windows, pruning and idempotence'
 
 # A real fetch/merge against a local bare remote, with the real promoter.
-for scenario in collision success empty; do
+for scenario in collision success additions empty single-node; do
   repo="$WORK/$scenario"
   git init -q --initial-branch=main "$repo"
   mkdir -p "$repo/scripts" "$repo/machines" "$repo/lessons" "$repo/daily" "$repo/projects"
   cp "$ROOT/scripts/"{pull-and-promote,promote-import}.sh "$repo/scripts/"
   printf '### local\n### first\n### second\n' > "$repo/machines/registry.md"
+  if [[ "$scenario" == single-node ]]; then
+    printf '### local\n' > "$repo/machines/registry.md"
+  fi
   for node in local first second; do
     mkdir -p "$repo/imports/$node/"{lessons,daily,projects}
   done
   printf 'Must be skipped\n' > "$repo/imports/local/lessons/local.md"
-  if [[ "$scenario" != empty ]]; then
+  if [[ "$scenario" != empty && "$scenario" != single-node ]]; then
     printf 'New lesson\n' > "$repo/imports/first/lessons/first.md"
     printf 'Later node\n' > "$repo/imports/second/lessons/second.md"
   fi
@@ -81,13 +89,19 @@ for scenario in collision success empty; do
   else
     [[ "$rc" == 0 ]] || fail "$scenario returned $rc"
     grep -q 'Failed promotion passes: 0' "$WORK/$scenario.log"
-    if [[ "$scenario" == success ]]; then
+    if [[ "$scenario" == success || "$scenario" == additions ]]; then
       [[ -f "$repo/lessons/first.md" && -f "$repo/lessons/second.md" ]] || fail 'successful promotion missing'
       [[ "$(git -C "$repo" rev-parse HEAD)" != "$before" ]] || fail 'successful result not committed'
       [[ "$(git --git-dir="$WORK/$scenario.git" rev-parse main)" == "$(git -C "$repo" rev-parse HEAD)" ]] || fail 'successful result not pushed to fixture'
     else
       [[ "$(git -C "$repo" rev-parse HEAD)" == "$before" ]] || fail 'empty run committed'
     fi
+  fi
+  if [[ "$scenario" == success || "$scenario" == additions ]]; then
+    committed="$(git -C "$repo" rev-parse HEAD)"
+    COMMIT_PROMOTIONS=1 PUSH_PROMOTIONS=1 bash "$repo/scripts/pull-and-promote.sh" local > "$WORK/repeat.log" 2>&1
+    [[ "$(git -C "$repo" rev-parse HEAD)" == "$committed" ]] || fail 'repeat run made an empty commit'
+    [[ -z "$(git -C "$repo" status --porcelain)" ]] || fail 'successful run left changes uncommitted'
   fi
   echo "PASS: cross-node promotion ($scenario)"
 done

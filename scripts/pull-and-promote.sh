@@ -50,7 +50,8 @@ has_md_files() {
     -type f -name '*.md' -print -quit 2>/dev/null | grep -q .
 }
 
-for slug in "${machine_slugs[@]}"; do
+# The alternate expansion skips empty arrays under nounset on Bash 3.2.
+for slug in ${machine_slugs[@]+"${machine_slugs[@]}"}; do
   import_dir="$ROOT/imports/$slug"
 
   if [[ ! -d "$import_dir" ]]; then
@@ -87,7 +88,7 @@ if [[ "$failed" -gt 0 ]]; then
   exit 1
 fi
 
-if [[ "$COMMIT_PROMOTIONS" == "1" ]] && ! git diff --quiet -- lessons daily projects; then
+if [[ "$COMMIT_PROMOTIONS" == "1" ]] && [[ -n "$(git status --porcelain --untracked-files=all -- lessons daily projects)" ]]; then
   git add lessons daily projects
   git commit -m "feat: promote shared-memory imports for $LOCAL_MACHINE_SLUG"
 
