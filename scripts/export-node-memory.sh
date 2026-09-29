@@ -52,32 +52,8 @@ strip_frontmatter() {
   ' "$file_path"
 }
 
-_next_lesson_id_cache=""
-
-next_lesson_id() {
-  if [ -z "$_next_lesson_id_cache" ]; then
-    local max_id=0
-    local raw
-
-    for file_path in "$ROOT"/lessons/*.md; do
-      [ "$(basename "$file_path")" = "index.md" ] && continue
-      raw="$(frontmatter_field "$file_path" "lesson_id")"
-      if [[ "$raw" =~ ^L([0-9]+)$ ]]; then
-        num="${BASH_REMATCH[1]}"
-        num=$((10#$num))
-        if [ "$num" -gt "$max_id" ]; then
-          max_id="$num"
-        fi
-      fi
-    done
-    _next_lesson_id_cache="$max_id"
-  fi
-  # Cache is in-memory only, so IDs handed out within a single run stay
-  # unique even though none of them are written to $ROOT/lessons until a
-  # later promotion step (multiple new lessons in one run used to collide).
-  _next_lesson_id_cache=$((_next_lesson_id_cache + 1))
-  printf 'L%03d' "$_next_lesson_id_cache"
-}
+# shellcheck source=lesson-ids.sh
+source "$SCRIPT_DIR/lesson-ids.sh"
 
 derive_lesson_name() {
   local file_path="$1"
@@ -275,13 +251,20 @@ prepare_bridge_lesson() {
     fi
   fi
 
+  local current_id new_id
+  current_id="$(frontmatter_field "$bridge_file" lesson_id)"
+  if [[ -n "$current_id" ]]; then
+    return 0
+  fi
+  new_id="$(next_lesson_id "$MACHINE_SLUG" "$ROOT/lessons" "$BRIDGE_ROOT/lessons" "$STAGE_DIR/lessons")"
   if has_frontmatter "$bridge_file"; then
+    insert_lesson_id "$bridge_file" "$new_id"
     return 0
   fi
 
   prepend_lesson_frontmatter \
     "$bridge_file" \
-    "$(next_lesson_id)" \
+    "$new_id" \
     "$(derive_lesson_name "$bridge_file")" \
     "$(derive_lesson_description "$bridge_file")" \
     "$(derive_lesson_date "$bridge_file")" \

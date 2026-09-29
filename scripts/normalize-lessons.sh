@@ -26,31 +26,8 @@ has_frontmatter() {
   [ "$(sed -n '1p' "$1")" = "---" ]
 }
 
-_next_lesson_id_cache=""
-
-next_lesson_id() {
-  if [ -z "$_next_lesson_id_cache" ]; then
-    local max_id=0
-    local raw
-    for file_path in "${LESSONS_DIR}"/*.md; do
-      [ "$(basename "$file_path")" = "index.md" ] && continue
-      raw="$(frontmatter_field "$file_path" "lesson_id")"
-      if [[ "$raw" =~ ^L([0-9]+)$ ]]; then
-        num="${BASH_REMATCH[1]}"
-        num=$((10#$num))
-        if [ "$num" -gt "$max_id" ]; then
-          max_id="$num"
-        fi
-      fi
-    done
-    _next_lesson_id_cache="$max_id"
-  fi
-  # Cache is in-memory only, so IDs handed out within a single run stay
-  # unique even though none of them are written to LESSONS_DIR until a
-  # later promotion step (multiple new lessons in one run used to collide).
-  _next_lesson_id_cache=$((_next_lesson_id_cache + 1))
-  printf 'L%03d' "$_next_lesson_id_cache"
-}
+# shellcheck source=lesson-ids.sh
+source "$SCRIPT_DIR/lesson-ids.sh"
 
 derive_name() {
   local file_path="$1"
@@ -124,34 +101,17 @@ prepend_frontmatter() {
   mv "$tmp_file" "$file_path"
 }
 
-insert_lesson_id() {
-  local file_path="$1"
-  local lesson_id="$2"
-  local tmp_file
-
-  tmp_file="$(mktemp)"
-  awk -v lesson_id="$lesson_id" '
-    NR == 1 && $0 == "---" {
-      print
-      print "lesson_id: " lesson_id
-      next
-    }
-    { print }
-  ' "$file_path" > "$tmp_file"
-  mv "$tmp_file" "$file_path"
-}
-
 for file_path in "${LESSONS_DIR}"/*.md; do
-  [ "$(basename "$file_path")" = "index.md" ] && continue
+  [[ -f "$file_path" && "${file_path##*/}" != index.md ]] || continue
   current_id="$(frontmatter_field "$file_path" "lesson_id")"
+  [[ -n "$current_id" ]] && continue
+  new_id="$(next_lesson_id "$DEFAULT_ORIGIN_NODE" "$LESSONS_DIR")"
   if has_frontmatter "$file_path"; then
-    if [ -z "$current_id" ]; then
-      insert_lesson_id "$file_path" "$(next_lesson_id)"
-    fi
+    insert_lesson_id "$file_path" "$new_id"
   else
     prepend_frontmatter \
       "$file_path" \
-      "$(next_lesson_id)" \
+      "$new_id" \
       "$(derive_name "$file_path")" \
       "$(derive_description "$file_path")" \
       "$(derive_date "$file_path")" \

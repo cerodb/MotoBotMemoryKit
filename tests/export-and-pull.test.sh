@@ -15,7 +15,7 @@ repo="$WORK/export"
 bridge="$WORK/bridge"
 mkdir -p "$repo/scripts" "$repo/.git" "$repo/lessons" \
   "$bridge/lessons" "$bridge/projects" "$bridge/memories/daily"
-cp "$ROOT/scripts/export-node-memory.sh" "$repo/scripts/"
+cp "$ROOT/scripts/"{export-node-memory,lesson-ids}.sh "$repo/scripts/"
 for day in 2025-12-31 2026-12-31 2027-01-01; do
   printf '# %s\n\nA recorded event.\n' "$day" > "$bridge/memories/daily/$day.md"
 done

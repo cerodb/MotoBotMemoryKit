@@ -83,6 +83,24 @@ If you are starting from zero, read `INSTALL.md`.
 
 Collisions should fail rather than overwrite canon silently.
 
+## Lesson IDs
+
+Existing lesson IDs are preserved. For lessons without an ID, export and normalization
+allocate `L-<machine-slug>-001`, `L-<machine-slug>-002`, and so on. Each node must use
+its own stable slug. The exporter checks canonical lessons, its bridge and its staged
+imports before assigning an ID, so a restart before promotion does not reuse a number.
+
+To retain an established node prefix, set `MOTOBOT_LESSON_ID_PREFIX` consistently for
+that node's export and normalization commands (for example `L-A` produces `L-A001`).
+Prefixes must be unique across nodes, start with `L-` followed by a letter, contain
+only letters, digits, underscores or hyphens, and end in a non-digit. Do not switch
+prefixes between runs or share a prefix between independent nodes.
+
+For normalization, set `DEFAULT_ORIGIN_NODE` to the allocating node's slug. As with
+export, serialize writers on that node. This is not a distributed counter: existing
+manually supplied duplicate IDs still require review and are rejected by index rebuild.
+Do not renumber historical IDs without checking references.
+
 ## Multiple agents on one node
 
 Claude, Codex, and any other agent on the same machine are still one node.
@@ -117,6 +135,8 @@ Use it only with explicit opt-in in a private derived repo, because it can copy 
 - `tests/export-and-pull.test.sh` — run with Bash to check year-independent export and cross-node promotion using temporary bridges and local Git remotes only. Includes additions-only commits, repeat runs, empty-bridge pruning and a single-node registry.
 
 To exercise an alternate Bash, put it first on `PATH` before running the suites so child scripts use the same interpreter. Testing Bash 3.2 on Linux does not verify macOS utilities or the optional sync hook.
+
+- `tests/lesson-ids.test.sh` — checks independent-node allocation, restart before promotion, missing metadata IDs, legacy preservation and normalization.
 
 ## Template warning
 
