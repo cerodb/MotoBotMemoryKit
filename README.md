@@ -138,6 +138,8 @@ To exercise an alternate Bash, put it first on `PATH` before running the suites 
 
 - `tests/lesson-ids.test.sh` — checks independent-node allocation, restart before promotion, missing metadata IDs, legacy preservation and normalization.
 
+- `tests/sync-missing-flock.test.sh` — verifies that the close-time hook reports missing `flock` without side effects and skips successfully when a real lock is held.
+
 ## Template warning
 
 This repo demonstrates the workflow. It is not a live shared-memory canon yet.

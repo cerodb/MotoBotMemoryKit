@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v flock >/dev/null 2>&1; then
+  echo "error: required dependency 'flock' is unavailable; use a node-specific serialized wrapper or install flock" >&2
+  exit 127
+fi
+
 LOCK_FILE="${MOTOBOT_SYNC_LOCK:-/tmp/motobotsharedmemory-sync.lock}"
 LOG_FILE="${MOTOBOT_SYNC_LOG:-${HOME}/.motobot-bridge-sync.log}"
 ROOT="${MOTOBOT_SHARED_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"

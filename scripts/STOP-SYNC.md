@@ -19,3 +19,8 @@ full-window backstop. This hook does not replace it.
 The promotion commit includes the transcription index when present because
 `rebuild-indexes.sh` can update it alongside the other indexes. Leaving it
 uncommitted would block the next sync's clean-worktree check.
+
+If `flock` is unavailable, the hook reports the missing dependency to stderr and
+exits 127 before touching the lock or repository. This configuration error is not
+a busy-lock skip. On macOS, use a node-specific wrapper with verified serialization
+or provide `flock`; no automatic lock fallback is selected.
